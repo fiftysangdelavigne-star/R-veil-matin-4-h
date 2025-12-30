@@ -1,0 +1,1689 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f17" />
+  <title>Réveil Remix (HTML)</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --panel:#111827;
+      --panel2:#0f172a;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#60a5fa;
+      --good:#34d399;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+      --line:#1f2937;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      background: radial-gradient(1200px 800px at 70% -20%, rgba(96,165,250,.15), transparent 55%),
+                  radial-gradient(900px 600px at 0% 10%, rgba(52,211,153,.10), transparent 50%),
+                  var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    header{
+      position:sticky; top:0; z-index:20;
+      padding: 14px 14px 10px;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,23,.75);
+      border-bottom:1px solid rgba(31,41,55,.7);
+    }
+    header .row{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+    h1{margin:0; font-size:16px; letter-spacing:.2px; font-weight:700;}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid rgba(31,41,55,.8);
+      background: rgba(17,24,39,.6);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .pill strong{color:var(--text)}
+    nav{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:8px;
+    }
+    .tab{
+      border:1px solid rgba(31,41,55,.8);
+      background: rgba(17,24,39,.55);
+      color:var(--muted);
+      padding:10px 10px;
+      border-radius:12px;
+      font-weight:650;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab.active{
+      color:var(--text);
+      border-color: rgba(96,165,250,.9);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.12);
+      background: rgba(15,23,42,.7);
+    }
+    main{padding:14px; max-width:860px; margin:0 auto;}
+    .panel{
+      background: linear-gradient(180deg, rgba(17,24,39,.85), rgba(15,23,42,.72));
+      border:1px solid rgba(31,41,55,.8);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .grid{display:grid; gap:12px;}
+    .grid.two{grid-template-columns:1fr; }
+    @media (min-width: 820px){ .grid.two{grid-template-columns:1fr 1fr;} }
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .row.spread{justify-content:space-between;}
+    label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px;}
+    input, select, button, textarea{ font:inherit; }
+    input[type="time"], input[type="text"], input[type="number"], select, textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(2,6,23,.35);
+      color:var(--text);
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(96,165,250,.9);
+      box-shadow: 0 0 0 3px rgba(96,165,250,.14);
+    }
+    textarea{min-height:72px; resize:vertical;}
+    button{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(17,24,39,.75);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:650;
+    }
+    button.primary{ border-color: rgba(96,165,250,.9); background: rgba(96,165,250,.18); }
+    button.good{ border-color: rgba(52,211,153,.9); background: rgba(52,211,153,.15); }
+    button.warn{ border-color: rgba(251,191,36,.9); background: rgba(251,191,36,.12); }
+    button.bad{ border-color: rgba(251,113,133,.9); background: rgba(251,113,133,.12); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .mono{font-family:var(--mono)}
+    .divider{height:1px; background: rgba(31,41,55,.9); margin:12px 0;}
+    .list{display:grid; gap:10px; margin-top:8px;}
+    .card{
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(2,6,23,.22);
+      border-radius:14px;
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .card .top{display:flex; justify-content:space-between; gap:10px; align-items:flex-start;}
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(17,24,39,.45);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .badge.good{border-color: rgba(52,211,153,.7); color: rgba(167,243,208,1);}
+    .badge.bad{border-color: rgba(251,113,133,.7); color: rgba(254,202,202,1);}
+    .badge.warn{border-color: rgba(251,191,36,.7); color: rgba(253,230,138,1);}
+    .switch{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 8px; border-radius:999px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(17,24,39,.35);
+      user-select:none;
+      cursor:pointer;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .switch .dot{
+      width:18px; height:18px; border-radius:999px;
+      background: rgba(156,163,175,.35);
+      border:1px solid rgba(31,41,55,.95);
+      position:relative;
+    }
+    .switch.on{border-color: rgba(52,211,153,.75); color: rgba(167,243,208,1);}
+    .switch.on .dot{ background: rgba(52,211,153,.25); }
+    .switch.on .dot:after{
+      content:""; position:absolute; inset:4px;
+      border-radius:999px; background: rgba(52,211,153,1);
+    }
+    .help{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(2,6,23,.22);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .overlay{
+      position:fixed; inset:0; z-index:50;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .overlay.show{display:flex;}
+    .modal{
+      width:min(560px, 100%);
+      background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.9));
+      border:1px solid rgba(31,41,55,.85);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .modal h2{margin:0 0 8px; font-size:16px}
+    .kpi{
+      display:grid;
+      gap:8px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .kpi .box{
+      border-radius:14px;
+      border:1px solid rgba(31,41,55,.85);
+      background: rgba(2,6,23,.22);
+      padding:10px 10px;
+    }
+    .kpi .box .v{font-size:18px; font-weight:800;}
+    .kpi .box .l{font-size:12px; color:var(--muted); margin-top:4px;}
+    .hidden{display:none !important;}
+    .danger-note{
+      border:1px solid rgba(251,113,133,.5);
+      background: rgba(251,113,133,.08);
+      color: rgba(254,202,202,1);
+      padding:10px 12px; border-radius:14px; font-size:12px; line-height:1.35;
+    }
+  </style>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Réveil Remix">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png">
+
+</head>
+<body>
+  <header>
+    <div class="row">
+      <h1>⏰ Réveil Remix (HTML)</h1>
+      <div class="pill" id="statusPill"><strong>Audio</strong> : <span id="audioStatus">verrouillé</span></div>
+    </div>
+    <nav>
+      <div class="tab active" data-tab="alarms">Réveil</div>
+      <div class="tab" data-tab="stopwatch">Chrono</div>
+      <div class="tab" data-tab="timers">Minuteurs</div>
+      <div class="tab" data-tab="ringtones">Sonneries</div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="grid" style="margin-bottom:12px;">
+      <div class="panel">
+        <div class="row spread">
+          <div>
+            <div style="font-weight:800; font-size:14px;">Démarrage</div>
+            <div class="muted small">Sur mobile, l’audio & le micro demandent une action (bouton). Laisse l’app ouverte pour une fiabilité maximale (limites PWA/iOS).</div>
+          </div>
+          <div class="row">
+            <button class="primary" id="btnUnlock">Activer l’audio</button>
+            <button id="btnNotif">Activer notifications</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="danger-note">
+          ⚠️ <strong>Important :</strong> en pur HTML/PWA, les alarmes ne sont pas garanties si le navigateur met l’app en veille (surtout iPhone). Pour tester : garde l’écran allumé ou l’app au premier plan.
+        </div>
+      </div>
+    </div>
+
+    <section id="tab-alarms">
+      <div class="grid two">
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Créer une alarme</div>
+              <div class="muted small">Plusieurs alarmes + répétition + sonnerie remixée.</div>
+            </div>
+            <span class="badge" id="nextAlarmBadge">Prochaine : —</span>
+          </div>
+          <div class="divider"></div>
+
+          <div class="grid" style="gap:10px;">
+            <div class="row">
+              <div style="flex:1; min-width: 160px;">
+                <label>Heure</label>
+                <input type="time" id="alarmTime" value="07:00" />
+              </div>
+              <div style="flex:2; min-width: 200px;">
+                <label>Nom</label>
+                <input type="text" id="alarmLabel" placeholder="Ex: Réveil sport" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div style="flex:1; min-width: 220px;">
+                <label>Sonnerie</label>
+                <select id="alarmRingtone"></select>
+              </div>
+              <div style="flex:1; min-width: 220px;">
+                <label>Snooze (minutes)</label>
+                <select id="alarmSnooze">
+                  <option value="3">3</option>
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label>Répéter</label>
+              <div class="row" id="repeatDays" style="gap:6px;">
+                <label class="switch" data-day="1"><span class="dot"></span>L</label>
+                <label class="switch" data-day="2"><span class="dot"></span>M</label>
+                <label class="switch" data-day="3"><span class="dot"></span>Me</label>
+                <label class="switch" data-day="4"><span class="dot"></span>J</label>
+                <label class="switch" data-day="5"><span class="dot"></span>V</label>
+                <label class="switch" data-day="6"><span class="dot"></span>S</label>
+                <label class="switch" data-day="0"><span class="dot"></span>D</label>
+              </div>
+              <div class="muted small" style="margin-top:6px;">Astuce : si aucun jour n’est coché, l’alarme sonne une seule fois.</div>
+            </div>
+
+            <div class="row">
+              <button class="good" id="btnAddAlarm">Ajouter</button>
+              <button id="btnTestAlarm">Tester la sonnerie</button>
+              <span class="muted small" id="alarmHint"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Mes alarmes</div>
+              <div class="muted small">Active/désactive, supprime, et choisis la sonnerie.</div>
+            </div>
+            <button id="btnClearAlarms" class="bad">Tout supprimer</button>
+          </div>
+          <div class="divider"></div>
+          <div class="list" id="alarmsList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-stopwatch" class="hidden">
+      <div class="grid two">
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Chronomètre</div>
+              <div class="muted small">Démarrer / Pause / Reset + tours.</div>
+            </div>
+            <span class="badge warn" id="swState">À l’arrêt</span>
+          </div>
+          <div class="divider"></div>
+
+          <div class="kpi">
+            <div class="box">
+              <div class="v mono" id="swTime">00:00.0</div>
+              <div class="l">Temps</div>
+            </div>
+            <div class="box">
+              <div class="v mono" id="swLaps">0</div>
+              <div class="l">Tours</div>
+            </div>
+            <div class="box">
+              <div class="v mono" id="swBest">—</div>
+              <div class="l">Meilleur tour</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="row">
+            <button class="good" id="btnSwStart">Démarrer</button>
+            <button id="btnSwLap">Tour</button>
+            <button class="bad" id="btnSwReset">Reset</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Tours</div>
+              <div class="muted small">Liste des temps intermédiaires.</div>
+            </div>
+            <button id="btnSwClear">Effacer</button>
+          </div>
+          <div class="divider"></div>
+          <div class="list" id="swLapList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-timers" class="hidden">
+      <div class="grid two">
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Créer un minuteur</div>
+              <div class="muted small">Plusieurs minuteurs en parallèle.</div>
+            </div>
+            <button class="primary" id="btnQuick5">+5 min</button>
+          </div>
+          <div class="divider"></div>
+
+          <div class="row">
+            <div style="flex:1; min-width: 160px;">
+              <label>Durée (minutes)</label>
+              <input type="number" id="timerMinutes" value="10" min="0" max="999" />
+            </div>
+            <div style="flex:2; min-width: 200px;">
+              <label>Nom</label>
+              <input type="text" id="timerLabel" placeholder="Ex: Thé / Pomodoro" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div style="flex:1; min-width: 220px;">
+              <label>Sonnerie</label>
+              <select id="timerRingtone"></select>
+            </div>
+            <div style="flex:1; min-width: 220px;">
+              <label>Répéter sonnerie</label>
+              <select id="timerRepeat">
+                <option value="1">1 fois</option>
+                <option value="3">3 fois</option>
+                <option value="999" selected>En boucle</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="good" id="btnAddTimer">Ajouter minuteur</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Mes minuteurs</div>
+              <div class="muted small">Start/Pause/Reset.</div>
+            </div>
+            <button id="btnClearTimers" class="bad">Tout supprimer</button>
+          </div>
+          <div class="divider"></div>
+          <div class="list" id="timersList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-ringtones" class="hidden">
+      <div class="grid two">
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Enregistrer une voix</div>
+              <div class="muted small">Autorise le micro. Tu peux ensuite lancer Auto-Remix.</div>
+            </div>
+            <span class="badge" id="recBadge">Micro : —</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button class="good" id="btnRecStart">● Enregistrer</button>
+            <button class="bad" id="btnRecStop" disabled>■ Stop</button>
+            <button id="btnRecPlay" disabled>▶ Écouter</button>
+            <button id="btnRecDiscard" disabled>🗑️ Jeter</button>
+          </div>
+
+          <div class="help" style="margin-top:10px;">
+            Conseils : parle près du micro, fais une phrase courte. Exemple : “Debout ! Tu gères !”
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Auto-Remix</div>
+              <div class="muted small">Mix automatique voix + musique + effets.</div>
+            </div>
+            <button class="primary" id="btnAutoRemix" disabled>✨ AUTO-REMIX</button>
+          </div>
+
+          <div class="grid" style="margin-top:10px; gap:10px;">
+            <div class="row">
+              <div style="flex:1; min-width: 180px;">
+                <label>Style</label>
+                <select id="remixStyle">
+                  <option value="pop" selected>Pop</option>
+                  <option value="lofi">Lo-fi</option>
+                  <option value="electro">Électro</option>
+                  <option value="cine">Ciné</option>
+                  <option value="funny">Drôle</option>
+                </select>
+              </div>
+              <div style="flex:1; min-width: 180px;">
+                <label>Durée</label>
+                <select id="remixDuration">
+                  <option value="8">8s</option>
+                  <option value="12" selected>12s</option>
+                  <option value="20">20s</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div style="flex:1; min-width: 180px;">
+                <label>Mode voix</label>
+                <select id="remixVoiceMode">
+                  <option value="best" selected>Meilleur passage (≈2–3s)</option>
+                  <option value="full">Tout le message</option>
+                </select>
+              </div>
+              <div style="flex:1; min-width: 180px;">
+                <label>Voix en avant</label>
+                <select id="remixPresence">
+                  <option value="0.9">Faible</option>
+                  <option value="1.2" selected>Normal</option>
+                  <option value="1.6">Fort</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div style="flex:1; min-width: 260px;">
+                <label>Musique (optionnel)</label>
+                <input type="file" id="musicFile" accept="audio/*" />
+                <div class="muted small" style="margin-top:6px;">Si tu ne choisis rien, on utilise un <strong>pack intégré</strong>.</div>
+              </div>
+              <div style="flex:1; min-width: 220px;">
+                <label>Pack intégré</label>
+                <select id="musicPack">
+                  <option value="auto" selected>Auto</option>
+                  <option value="soft">Soft</option>
+                  <option value="punchy">Punchy</option>
+                  <option value="ambient">Ambient</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="row">
+            <button id="btnPreviewRemix" disabled>▶ Pré-écouter</button>
+            <button class="good" id="btnSaveRemix" disabled>💾 Sauvegarder sonnerie</button>
+          </div>
+          <div class="muted small" id="remixInfo" style="margin-top:8px;">—</div>
+        </div>
+
+        <div class="panel">
+          <div class="row spread">
+            <div>
+              <div style="font-weight:800">Bibliothèque</div>
+              <div class="muted small">Tes sonneries remixées, utilisables pour alarmes et minuteurs.</div>
+            </div>
+            <button id="btnSeedDefault">+ Sonnerie par défaut</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="list" id="ringList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="alarmOverlay" aria-hidden="true">
+    <div class="modal">
+      <h2>⏰ Alarme</h2>
+      <div class="muted" id="alarmModalLabel">—</div>
+      <div class="divider"></div>
+      <div class="row">
+        <button class="bad" id="btnDismiss">Stop</button>
+        <button class="warn" id="btnSnooze">Snooze</button>
+        <button id="btnLower">Baisser</button>
+      </div>
+      <div class="muted small" id="alarmModalHint" style="margin-top:8px;">Si ça ne sonne pas : clique “Activer l’audio”, et laisse l’app au premier plan.</div>
+    </div>
+  </div>
+
+  <div class="overlay show" id="unlockOverlay" aria-hidden="false">
+    <div class="modal">
+      <h2>🔊 Activer l’audio</h2>
+      <div class="muted">Sur mobile, le navigateur bloque l’audio tant que tu n’as pas cliqué. Clique ci-dessous une fois.</div>
+      <div class="divider"></div>
+      <div class="row">
+        <button class="primary" id="btnUnlockModal">Activer maintenant</button>
+        <button id="btnUnlockLater">Plus tard</button>
+      </div>
+      <div class="divider"></div>
+      <div class="help">
+        Pour l’enregistrement micro, il faudra aussi autoriser le micro. Les alarmes web ne sont pas garanties si l’app est en veille profonde.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+  const pad2 = n => String(n).padStart(2,"0");
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const now = () => new Date();
+  const fmtTimeHM = (d) => pad2(d.getHours())+":"+pad2(d.getMinutes());
+  const dayName = (d) => ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"][d];
+
+  function formatMs(ms){
+    ms = Math.max(0, ms);
+    const total = Math.floor(ms/100);
+    const ds = total % 10;
+    const sec = Math.floor(total/10) % 60;
+    const min = Math.floor(total/10/60) % 60;
+    const hr  = Math.floor(total/10/60/60);
+    if(hr>0) return `${pad2(hr)}:${pad2(min)}:${pad2(sec)}.${ds}`;
+    return `${pad2(min)}:${pad2(sec)}.${ds}`;
+  }
+  function formatSeconds(s){
+    s = Math.max(0, Math.floor(s));
+    const sec = s % 60;
+    const min = Math.floor(s/60) % 60;
+    const hr  = Math.floor(s/3600);
+    if(hr>0) return `${pad2(hr)}:${pad2(min)}:${pad2(sec)}`;
+    return `${pad2(min)}:${pad2(sec)}`;
+  }
+
+  const LS = {
+    get(k, fallback){
+      try{ const v = localStorage.getItem(k); return v? JSON.parse(v): fallback; }catch{ return fallback; }
+    },
+    set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+  };
+
+  const DB = {
+    _db:null,
+    async open(){
+      if(this._db) return this._db;
+      return new Promise((resolve,reject)=>{
+        const req = indexedDB.open("remixClockDB", 1);
+        req.onupgradeneeded = ()=>{
+          const db = req.result;
+          if(!db.objectStoreNames.contains("ringtones")){
+            const store = db.createObjectStore("ringtones", {keyPath:"id"});
+            store.createIndex("createdAt","createdAt",{unique:false});
+          }
+        };
+        req.onsuccess=()=>{ this._db=req.result; resolve(this._db); };
+        req.onerror=()=>reject(req.error);
+      });
+    },
+    async putRingtone(rec){
+      const db = await this.open();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction("ringtones","readwrite");
+        tx.objectStore("ringtones").put(rec);
+        tx.oncomplete=()=>resolve(true);
+        tx.onerror=()=>reject(tx.error);
+      });
+    },
+    async getAllRingtones(){
+      const db = await this.open();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction("ringtones","readonly");
+        const req = tx.objectStore("ringtones").getAll();
+        req.onsuccess=()=>resolve(req.result || []);
+        req.onerror=()=>reject(req.error);
+      });
+    },
+    async deleteRingtone(id){
+      const db = await this.open();
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction("ringtones","readwrite");
+        tx.objectStore("ringtones").delete(id);
+        tx.oncomplete=()=>resolve(true);
+        tx.onerror=()=>reject(tx.error);
+      });
+    }
+  };
+
+  let audioCtx = null;
+  let unlocked = false;
+  function ensureAudioContext(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC({ latencyHint: "interactive" });
+    }
+    return audioCtx;
+  }
+
+  async function unlockAudio(){
+    try{
+      const ctx = ensureAudioContext();
+      if(ctx.state !== "running") await ctx.resume();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      g.gain.value = 0.0001;
+      o.connect(g).connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.02);
+      unlocked = true;
+      $("#audioStatus").textContent = "ok";
+      $("#statusPill").style.borderColor = "rgba(52,211,153,.7)";
+      $("#statusPill").style.boxShadow = "0 0 0 3px rgba(52,211,153,.10)";
+      $("#unlockOverlay").classList.remove("show");
+      $("#unlockOverlay").setAttribute("aria-hidden","true");
+      return true;
+    }catch(err){
+      console.error(err);
+      $("#audioStatus").textContent = "erreur";
+      return false;
+    }
+  }
+  async function unlockAudioIfNeeded(){ if(!unlocked) await unlockAudio(); }
+
+  async function requestNotifications(){
+    if(!("Notification" in window)){
+      alert("Notifications non supportées dans ce navigateur.");
+      return;
+    }
+    const p = await Notification.requestPermission();
+    alert(p === "granted" ? "Notifications activées ✅" : "Notifications refusées.");
+  }
+  function notify(title, body){
+    try{
+      if("Notification" in window && Notification.permission === "granted"){
+        new Notification(title, { body });
+      }
+    }catch{}
+  }
+
+  function setTab(name){
+    $$(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+    ["alarms","stopwatch","timers","ringtones"].forEach(n=>{
+      $("#tab-"+n).classList.toggle("hidden", n!==name);
+    });
+  }
+  $$(".tab").forEach(t=>t.addEventListener("click", ()=>setTab(t.dataset.tab)));
+
+  let ringtoneCache = [];
+  let currentRingtoneAudio = null;
+
+  function makeBeepBuffer(ctx, duration=0.8){
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr*duration);
+    const b = ctx.createBuffer(1, len, sr);
+    const ch = b.getChannelData(0);
+    for(let i=0;i<len;i++){
+      const t = i/sr;
+      const env = Math.min(1, t/0.02) * Math.min(1, (duration - t)/0.12);
+      const f = 880 + 440*Math.sin(2*Math.PI*2*t);
+      ch[i] = Math.sin(2*Math.PI*f*t) * 0.35 * env;
+    }
+    return b;
+  }
+
+  function stopAnyRingtone(){
+    try{
+      if(currentRingtoneAudio){
+        if(currentRingtoneAudio instanceof Audio){
+          currentRingtoneAudio.pause();
+          currentRingtoneAudio.currentTime = 0;
+        }else if(typeof currentRingtoneAudio.stop === "function"){
+          currentRingtoneAudio.stop();
+        }
+      }
+    }catch{}
+    currentRingtoneAudio = null;
+  }
+
+  async function playRingtoneById(id, {loop=false, gain=1.0, maxLoops=999} = {}){
+    await unlockAudioIfNeeded();
+    stopAnyRingtone();
+
+    if(id === "beep"){
+      const ctx = ensureAudioContext();
+      const buf = makeBeepBuffer(ctx, 0.8);
+      const g = ctx.createGain();
+      g.gain.value = clamp(gain, 0, 2);
+      g.connect(ctx.destination);
+
+      const playOnce = ()=>{
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(g);
+        src.start();
+      };
+      playOnce();
+
+      if(loop || maxLoops>1){
+        let count = 1;
+        const timer = setInterval(()=>{
+          if(!currentRingtoneAudio || currentRingtoneAudio._stopped){ clearInterval(timer); return; }
+          count++;
+          if(count>maxLoops){ clearInterval(timer); stopAnyRingtone(); return; }
+          playOnce();
+        }, 900);
+        currentRingtoneAudio = {_type:"beep", _timer:timer, _stopped:false, stop:()=>{ try{clearInterval(timer);}catch{}; currentRingtoneAudio._stopped=true; }};
+      }else{
+        currentRingtoneAudio = {_type:"beep", _stopped:false, stop:()=>{ currentRingtoneAudio._stopped=true; }};
+      }
+      return;
+    }
+
+    const r = ringtoneCache.find(x=>x.id===id);
+    if(!r){ alert("Sonnerie introuvable."); return; }
+    const audio = new Audio();
+    audio.src = r.url;
+    audio.loop = !!loop;
+    audio.volume = clamp(gain, 0, 1);
+    audio.preload = "auto";
+    currentRingtoneAudio = audio;
+    try{ await audio.play(); }
+    catch{ alert("Lecture bloquée. Clique “Activer l’audio”."); }
+  }
+
+  async function refreshRingtones(){
+    const list = await DB.getAllRingtones();
+    list.sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+    ringtoneCache.forEach(r=>{ try{ URL.revokeObjectURL(r.url); }catch{} });
+    ringtoneCache = list.map(r => ({...r, url: URL.createObjectURL(r.blob)}));
+    renderRingtoneList();
+    refreshRingtoneSelects();
+  }
+
+  function refreshRingtoneSelects(){
+    const sels = [$("#alarmRingtone"), $("#timerRingtone")];
+    const options = [{id:"beep", name:"Bip (intégré)"}, ...ringtoneCache.map(r=>({id:r.id, name:r.name}))];
+    sels.forEach(sel=>{
+      const cur = sel.value;
+      sel.innerHTML = "";
+      options.forEach(o=>{
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = o.name;
+        sel.appendChild(opt);
+      });
+      if(options.some(o=>o.id===cur)) sel.value = cur;
+    });
+  }
+
+  // ALARMS
+  let alarms = LS.get("alarms_v1", []);
+  let lastTriggerKey = null;
+
+  function saveAlarms(){ LS.set("alarms_v1", alarms); }
+  function parseHM(hm){ const [h,m] = hm.split(":").map(x=>parseInt(x,10)); return {h, m}; }
+  function alarmMatchesNow(al, d){
+    const {h,m} = parseHM(al.time);
+    if(d.getHours()!==h || d.getMinutes()!==m) return false;
+    if(!al.days || al.days.length===0) return true;
+    return al.days.includes(d.getDay());
+  }
+  function nextAlarmInfo(){
+    const d0 = now();
+    for(let addMin=0; addMin<60*24*8; addMin++){
+      const d = new Date(d0.getTime() + addMin*60*1000);
+      for(const al of alarms){
+        if(!al.active) continue;
+        if(alarmMatchesNow(al, d)) return {inMin:addMin, alarm:al, when:d};
+      }
+    }
+    return null;
+  }
+  function daysLabel(days){
+    if(!days || days.length===0) return "1 fois";
+    const map = {0:"D",1:"L",2:"M",3:"Me",4:"J",5:"V",6:"S"};
+    return days.map(d=>map[d]).join(" ");
+  }
+  function renderNextAlarm(){
+    const info = nextAlarmInfo();
+    if(!info){ $("#nextAlarmBadge").textContent = "Prochaine : —"; $("#nextAlarmBadge").className="badge"; return; }
+    const d = info.when;
+    const inMin = info.inMin;
+    $("#nextAlarmBadge").textContent = `Prochaine : ${dayName(d.getDay())} ${fmtTimeHM(d)} (${inMin} min)`;
+    $("#nextAlarmBadge").className = "badge good";
+  }
+  function renderAlarms(){
+    const box = $("#alarmsList");
+    box.innerHTML = "";
+    if(alarms.length===0){
+      box.innerHTML = `<div class="help">Aucune alarme. Ajoute-en une à gauche.</div>`;
+      renderNextAlarm();
+      return;
+    }
+    alarms.slice().sort((a,b)=>a.time.localeCompare(b.time)).forEach(al=>{
+      const card = document.createElement("div");
+      card.className = "card";
+      const label = al.label?.trim() ? al.label.trim() : "Alarme";
+      const ringName = (al.ringtoneId==="beep") ? "Bip (intégré)" : (ringtoneCache.find(r=>r.id===al.ringtoneId)?.name || "Sonnerie");
+      card.innerHTML = `
+        <div class="top">
+          <div>
+            <div style="font-weight:900; font-size:18px" class="mono">${al.time}</div>
+            <div class="muted small">${label} • ${daysLabel(al.days)} • ${ringName}</div>
+          </div>
+          <div class="row" style="gap:6px;">
+            <div class="switch ${al.active ? "on":""}" data-action="toggle" data-id="${al.id}">
+              <span class="dot"></span>${al.active ? "ON":"OFF"}
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <button data-action="test" data-id="${al.id}">Tester</button>
+          <button data-action="edit" data-id="${al.id}">Modifier</button>
+          <button class="bad" data-action="del" data-id="${al.id}">Supprimer</button>
+        </div>`;
+      box.appendChild(card);
+    });
+    renderNextAlarm();
+  }
+
+  async function triggerAlarm(al){
+    $("#alarmModalLabel").textContent = (al.label?.trim() ? al.label.trim() : "Alarme") + " • " + al.time;
+    $("#alarmOverlay").classList.add("show");
+    $("#alarmOverlay").setAttribute("aria-hidden","false");
+    notify("⏰ Alarme", (al.label?.trim() ? al.label.trim() : al.time));
+    await playRingtoneById(al.ringtoneId || "beep", {loop:true, gain: 1.0});
+    if(!al.days || al.days.length===0){
+      const idx = alarms.findIndex(x=>x.id===al.id);
+      if(idx>=0){ alarms[idx].active = false; saveAlarms(); renderAlarms(); }
+    }
+  }
+
+  async function checkAlarmsTick(){
+    const d = now();
+    const key = d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()+" "+pad2(d.getHours())+":"+pad2(d.getMinutes());
+    if(lastTriggerKey === key) return;
+
+    const snoozes = LS.get("snoozes_v1", []);
+    const dueSnooze = snoozes.find(s => Math.abs(d.getTime() - s.atTs) < 2000);
+    if(dueSnooze){
+      lastTriggerKey = key;
+      await triggerAlarm({id: "snooze-"+dueSnooze.id, time: fmtTimeHM(d), label: dueSnooze.label || "Snooze", ringtoneId: dueSnooze.ringtoneId || "beep", days: []});
+      LS.set("snoozes_v1", snoozes.filter(x=>x!==dueSnooze));
+      return;
+    }
+
+    for(const al of alarms){
+      if(!al.active) continue;
+      if(alarmMatchesNow(al, d) && d.getSeconds()===0){
+        lastTriggerKey = key;
+        await triggerAlarm(al);
+        return;
+      }
+    }
+  }
+
+  // TIMERS
+  let timers = LS.get("timers_v1", []);
+  function saveTimers(){ LS.set("timers_v1", timers); }
+  function renderTimers(){
+    const box = $("#timersList");
+    box.innerHTML = "";
+    if(timers.length===0){
+      box.innerHTML = `<div class="help">Aucun minuteur. Ajoute-en un à gauche.</div>`;
+      return;
+    }
+    timers.forEach(t=>{
+      const card = document.createElement("div");
+      card.className = "card";
+      const ringName = (t.ringtoneId==="beep") ? "Bip (intégré)" : (ringtoneCache.find(r=>r.id===t.ringtoneId)?.name || "Sonnerie");
+      const st = t.finished ? "Terminé" : (t.running ? "En cours" : "Pause");
+      const badgeClass = t.finished ? "bad" : (t.running ? "good" : "warn");
+      card.innerHTML = `
+        <div class="top">
+          <div>
+            <div style="font-weight:900; font-size:18px" class="mono">${formatSeconds(t.remainingSec)}</div>
+            <div class="muted small">${(t.label||"Minuteur")} • ${ringName}</div>
+          </div>
+          <span class="badge ${badgeClass}">${st}</span>
+        </div>
+        <div class="row">
+          <button data-action="start" data-id="${t.id}" class="good">${t.running ? "Pause" : "Start"}</button>
+          <button data-action="reset" data-id="${t.id}">Reset</button>
+          <button data-action="del" data-id="${t.id}" class="bad">Supprimer</button>
+        </div>`;
+      box.appendChild(card);
+    });
+  }
+
+  async function triggerTimer(t){
+    t.finished = true; t.running = false;
+    saveTimers(); renderTimers();
+    notify("⏲️ Minuteur terminé", t.label || "Minuteur");
+    const repeat = parseInt(t.repeat || 999, 10);
+    const loop = repeat >= 999;
+    await playRingtoneById(t.ringtoneId || "beep", {loop, gain: 1.0, maxLoops: repeat});
+    $("#alarmModalLabel").textContent = (t.label||"Minuteur") + " • terminé";
+    $("#alarmOverlay").classList.add("show");
+    $("#alarmOverlay").setAttribute("aria-hidden","false");
+  }
+
+  function timersTick(dt){
+    let changed = false;
+    for(const t of timers){
+      if(!t.running || t.finished) continue;
+      t.remainingSec -= dt;
+      if(t.remainingSec <= 0){
+        t.remainingSec = 0;
+        changed = true;
+        triggerTimer(t);
+      }else changed = true;
+    }
+    if(changed){ saveTimers(); renderTimers(); }
+  }
+
+  // STOPWATCH
+  let sw = { running:false, t0:0, acc:0, laps:[] };
+  function swElapsedMs(){ return sw.acc + (sw.running ? (performance.now() - sw.t0) : 0); }
+  function renderLaps(){
+    $("#swTime").textContent = formatMs(swElapsedMs());
+    $("#swLaps").textContent = String(sw.laps.length);
+    const best = sw.laps.length ? Math.min(...sw.laps.map(x=>x.lapMs)) : null;
+    $("#swBest").textContent = best==null ? "—" : formatMs(best);
+
+    const box = $("#swLapList");
+    box.innerHTML = "";
+    if(sw.laps.length===0){ box.innerHTML = `<div class="help">Aucun tour pour l’instant.</div>`; return; }
+    sw.laps.slice().reverse().forEach((lap, idx)=>{
+      const i = sw.laps.length - idx;
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="top">
+          <div>
+            <div style="font-weight:900" class="mono">Tour ${i} • ${formatMs(lap.lapMs)}</div>
+            <div class="muted small mono">Total: ${formatMs(lap.totalMs)}</div>
+          </div>
+          <span class="badge">#${i}</span>
+        </div>`;
+      box.appendChild(card);
+    });
+  }
+
+  // RECORDER
+  let recStream = null;
+  let recorder = null;
+  let recChunks = [];
+  let voiceBlob = null;
+  let voiceAudioUrl = null;
+
+  async function ensureMic(){
+    try{
+      recStream = await navigator.mediaDevices.getUserMedia({audio:true});
+      $("#recBadge").textContent = "Micro : OK";
+      $("#recBadge").className = "badge good";
+      return true;
+    }catch(err){
+      console.error(err);
+      $("#recBadge").textContent = "Micro : refusé";
+      $("#recBadge").className = "badge bad";
+      alert("Micro refusé. Autorise le micro dans les réglages du navigateur.");
+      return false;
+    }
+  }
+
+  async function startRecording(){
+    await unlockAudioIfNeeded();
+    const ok = await ensureMic();
+    if(!ok) return;
+
+    recChunks = [];
+    voiceBlob = null;
+    if(voiceAudioUrl){ try{URL.revokeObjectURL(voiceAudioUrl);}catch{} }
+    voiceAudioUrl = null;
+
+    let mime = "";
+    const candidates = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/ogg","audio/mp4"];
+    for(const c of candidates){
+      if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)){ mime = c; break; }
+    }
+    try{ recorder = new MediaRecorder(recStream, mime? {mimeType:mime}: undefined); }
+    catch{ recorder = new MediaRecorder(recStream); }
+
+    recorder.ondataavailable = (e)=>{ if(e.data && e.data.size>0) recChunks.push(e.data); };
+    recorder.onstop = ()=>{
+      voiceBlob = new Blob(recChunks, {type: recorder.mimeType || "audio/webm"});
+      voiceAudioUrl = URL.createObjectURL(voiceBlob);
+      $("#btnRecPlay").disabled = false;
+      $("#btnRecDiscard").disabled = false;
+      $("#btnAutoRemix").disabled = false;
+      $("#btnRecStart").disabled = false;
+      $("#btnRecStop").disabled = true;
+      $("#remixInfo").textContent = "Voix enregistrée ✅ Prêt pour Auto-Remix.";
+    };
+    recorder.start();
+    $("#btnRecStart").disabled = true;
+    $("#btnRecStop").disabled = false;
+    $("#btnRecPlay").disabled = true;
+    $("#btnRecDiscard").disabled = true;
+    $("#btnAutoRemix").disabled = true;
+    $("#remixInfo").textContent = "Enregistrement en cours…";
+  }
+  function stopRecording(){ try{ if(recorder && recorder.state !== "inactive") recorder.stop(); }catch{} }
+  function playVoice(){ if(!voiceAudioUrl) return; new Audio(voiceAudioUrl).play().catch(()=>alert("Lecture bloquée.")); }
+  function discardVoice(){
+    voiceBlob = null;
+    if(voiceAudioUrl){ try{URL.revokeObjectURL(voiceAudioUrl);}catch{} }
+    voiceAudioUrl = null;
+    $("#btnRecPlay").disabled = true;
+    $("#btnRecDiscard").disabled = true;
+    $("#btnAutoRemix").disabled = true;
+    $("#remixInfo").textContent = "—";
+  }
+
+  // AUTO REMIX (Offline rendering + WAV export)
+  let remixBlob = null;
+  let remixUrl = null;
+  let remixMeta = null;
+
+  async function decodeBlobToAudioBuffer(blob){
+    const ctx = ensureAudioContext();
+    const ab = await blob.arrayBuffer();
+    try{ return await ctx.decodeAudioData(ab.slice(0)); }
+    catch{ return await ctx.decodeAudioData(ab); }
+  }
+
+  function analyzeTrim(buffer, threshold=0.02, windowMs=20){
+    const sr = buffer.sampleRate;
+    const step = Math.max(1, Math.floor(sr * (windowMs/1000)));
+    const ch = buffer.getChannelData(0);
+    const N = ch.length;
+    const rmsAt = (i0)=>{
+      let s=0;
+      const i1 = Math.min(N, i0+step);
+      for(let i=i0;i<i1;i++){ const v=ch[i]; s += v*v; }
+      return Math.sqrt(s / Math.max(1,(i1-i0)));
+    };
+    let start = 0;
+    for(let i=0;i<N;i+=step){ if(rmsAt(i) > threshold){ start = Math.max(0, i - step); break; } }
+    let end = N;
+    for(let i=N-step;i>=0;i-=step){ if(rmsAt(i) > threshold){ end = Math.min(N, i + 2*step); break; } }
+    if(end <= start) { start = 0; end = N; }
+    return {start, end};
+  }
+  function pickBestSegment(buffer, start, end, segSeconds=2.6, windowMs=40){
+    const sr = buffer.sampleRate;
+    const segLen = Math.floor(segSeconds * sr);
+    const ch = buffer.getChannelData(0);
+    const step = Math.max(1, Math.floor(sr * (windowMs/1000)));
+    let bestI = start, bestScore = -1;
+    for(let i=start; i+segLen<=end; i+=step){
+      let s=0;
+      for(let j=i; j<i+segLen; j+=step){ const v = ch[j]; s += v*v; }
+      if(s > bestScore){ bestScore = s; bestI = i; }
+    }
+    return {segStart: bestI, segEnd: Math.min(end, bestI+segLen)};
+  }
+  function makeImpulseResponse(ctx, seconds=1.2, decay=3.0){
+    const rate = ctx.sampleRate;
+    const length = Math.floor(rate * seconds);
+    const ir = ctx.createBuffer(2, length, rate);
+    for(let c=0;c<2;c++){
+      const ch = ir.getChannelData(c);
+      for(let i=0;i<length;i++){
+        const t = i/length;
+        const env = Math.pow(1 - t, decay);
+        ch[i] = (Math.random()*2-1) * env;
+      }
+    }
+    return ir;
+  }
+  function encodeWAV(audioBuffer){
+    const numChannels = audioBuffer.numberOfChannels;
+    const sampleRate = audioBuffer.sampleRate;
+    const length = audioBuffer.length;
+    const bytesPerSample = 2;
+    const blockAlign = numChannels * bytesPerSample;
+    const byteRate = sampleRate * blockAlign;
+    const dataSize = length * blockAlign;
+    const buffer = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(buffer);
+    const writeString = (offset, str)=>{ for(let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+    writeString(0, "RIFF");
+    view.setUint32(4, 36 + dataSize, true);
+    writeString(8, "WAVE");
+    writeString(12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, byteRate, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, 16, true);
+    writeString(36, "data");
+    view.setUint32(40, dataSize, true);
+
+    let offset = 44;
+    const chans = [];
+    for(let c=0;c<numChannels;c++) chans.push(audioBuffer.getChannelData(c));
+    for(let i=0;i<length;i++){
+      for(let c=0;c<numChannels;c++){
+        let s = chans[c][i];
+        s = Math.max(-1, Math.min(1, s));
+        view.setInt16(offset, s < 0 ? s*0x8000 : s*0x7FFF, true);
+        offset += 2;
+      }
+    }
+    return new Blob([buffer], {type:"audio/wav"});
+  }
+
+  async function autoRemix(){
+    if(!voiceBlob){ alert("Enregistre ta voix d’abord."); return; }
+    await unlockAudioIfNeeded();
+    $("#btnAutoRemix").disabled = true;
+    $("#btnPreviewRemix").disabled = true;
+    $("#btnSaveRemix").disabled = true;
+    $("#remixInfo").textContent = "Auto-Remix en cours…";
+
+    const style = $("#remixStyle").value;
+    const duration = parseInt($("#remixDuration").value, 10);
+    const voiceMode = $("#remixVoiceMode").value;
+    const presence = parseFloat($("#remixPresence").value);
+    const pack = $("#musicPack").value;
+
+    try{
+      const voiceBuf = await decodeBlobToAudioBuffer(voiceBlob);
+      const tr = analyzeTrim(voiceBuf, 0.018, 20);
+      let vStart = tr.start, vEnd = tr.end;
+
+      if(voiceMode === "best"){
+        const seg = pickBestSegment(voiceBuf, vStart, vEnd, 2.6, 40);
+        vStart = seg.segStart; vEnd = seg.segEnd;
+      }
+
+      const sr = voiceBuf.sampleRate;
+      const voiceSec = (vEnd - vStart)/sr;
+      let targetDuration = duration;
+
+      if(voiceMode === "full" && voiceSec > duration-1.0){
+        const maxVoice = Math.max(1.5, duration - 1.0);
+        vEnd = Math.min(vEnd, vStart + Math.floor(maxVoice * sr));
+      }
+
+      // envelope for ducking
+      const envStep = 0.02;
+      const env = [];
+      const ch0 = voiceBuf.getChannelData(0);
+      const stepSamp = Math.max(1, Math.floor(envStep * sr));
+      let envMax = 1e-9;
+      for(let i=vStart; i<vEnd; i+=stepSamp){
+        let s=0;
+        const i1 = Math.min(vEnd, i+stepSamp);
+        for(let j=i;j<i1;j++){ const v=ch0[j]; s += v*v; }
+        const r = Math.sqrt(s / Math.max(1,i1-i));
+        env.push(r); envMax = Math.max(envMax, r);
+      }
+      for(let i=0;i<env.length;i++) env[i] = env[i]/(envMax||1);
+
+      // Offline render
+      const outSR = 44100;
+      const outLen = Math.floor(targetDuration * outSR);
+      const offline = new OfflineAudioContext(2, outLen, outSR);
+
+      // Music chain (generated bed)
+      const musicGain = offline.createGain();
+      musicGain.gain.value = 0.30;
+
+      const base = offline.createGain(); base.gain.value = 1.0;
+      const bpm = (pack==="soft") ? 92 : (pack==="ambient" ? 72 : (pack==="punchy" ? 128 : 120));
+      const beat = 60/bpm;
+
+      const pad = offline.createOscillator();
+      pad.type = "sawtooth";
+      pad.frequency.value = (pack==="ambient") ? 196 : 220;
+      if(style==="electro") pad.frequency.value = 246.94;
+      if(style==="funny") pad.frequency.value = 261.63;
+
+      const pg = offline.createGain(); pg.gain.value = (pack==="ambient") ? 0.012 : 0.02;
+      pad.connect(pg).connect(base);
+
+      const bass = offline.createOscillator();
+      bass.type = "square";
+      bass.frequency.value = pad.frequency.value/2;
+      const bg = offline.createGain(); bg.gain.value = (pack==="ambient") ? 0.012 : 0.03;
+      bass.connect(bg).connect(base);
+
+      const nLen = Math.floor(targetDuration*outSR);
+      const nb = offline.createBuffer(1, nLen, outSR);
+      const nd = nb.getChannelData(0);
+      for(let i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1)*0.12;
+      const ns = offline.createBufferSource(); ns.buffer = nb;
+      const hp2 = offline.createBiquadFilter(); hp2.type="highpass"; hp2.frequency.value = (pack==="ambient")? 9000 : 6500;
+      const ng = offline.createGain(); ng.gain.value = 0.0;
+      ns.connect(hp2).connect(ng).connect(base);
+
+      const lp = offline.createBiquadFilter();
+      lp.type="lowpass";
+      lp.frequency.value = (pack==="ambient") ? 1000 : (style==="lofi" ? 1500 : 5200);
+
+      base.disconnect();
+      pg.disconnect(); bg.disconnect(); ng.disconnect();
+      pad.connect(pg).connect(lp);
+      bass.connect(bg).connect(lp);
+      hp2.connect(ng).connect(lp);
+      lp.connect(musicGain);
+
+      // hat pulses
+      const hatLevel = (pack==="ambient") ? 0.0 : 0.10;
+      for(let t=0; t<targetDuration; t+=beat/2){
+        ng.gain.setValueAtTime(0.0001, t);
+        ng.gain.linearRampToValueAtTime(hatLevel, t+0.004);
+        ng.gain.exponentialRampToValueAtTime(0.0001, t+0.05);
+      }
+
+      // lofi wobble
+      if(style==="lofi"){
+        const lfo = offline.createOscillator();
+        lfo.type="sine"; lfo.frequency.value = 0.5;
+        const lfg = offline.createGain(); lfg.gain.value = 120;
+        lfo.connect(lfg).connect(lp.frequency);
+        lfo.start(0); lfo.stop(targetDuration);
+      }
+
+      // fade in
+      musicGain.gain.setValueAtTime(0.0, 0);
+      musicGain.gain.linearRampToValueAtTime(0.30, 0.45);
+
+      pad.start(0); bass.start(0); ns.start(0);
+      pad.stop(targetDuration); bass.stop(targetDuration); ns.stop(targetDuration);
+
+      // Voice chain
+      const vSrc = offline.createBufferSource();
+      vSrc.buffer = voiceBuf;
+      let voicePlaybackRate = 1.0;
+      if(style==="funny") voicePlaybackRate = 1.12;
+      if(style==="cine") voicePlaybackRate = 0.98;
+      vSrc.playbackRate.value = voicePlaybackRate;
+
+      const vGain = offline.createGain();
+      vGain.gain.value = 1.0 * presence;
+
+      const hp = offline.createBiquadFilter(); hp.type="highpass"; hp.frequency.value = 90;
+      const comp = offline.createDynamicsCompressor();
+      comp.threshold.value = -24; comp.knee.value = 20; comp.ratio.value = 4.5;
+      comp.attack.value = 0.008; comp.release.value = 0.16;
+
+      const clarity = offline.createBiquadFilter();
+      clarity.type = "peaking"; clarity.frequency.value = 3200; clarity.Q.value = 1.0;
+      clarity.gain.value = (style==="cine") ? 2.0 : 3.5;
+
+      vSrc.connect(vGain).connect(hp).connect(comp).connect(clarity);
+
+      let vOut = clarity;
+      if(style==="lofi"){
+        const lpv = offline.createBiquadFilter(); lpv.type="lowpass"; lpv.frequency.value = 2200;
+        clarity.connect(lpv); vOut = lpv;
+      }
+      if(style==="funny"){
+        const bp = offline.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value = 1200; bp.Q.value = 0.7;
+        clarity.connect(bp); vOut = bp;
+      }
+
+      const vBus = offline.createGain(); vBus.gain.value = 1.0;
+      const dry = offline.createGain(); dry.gain.value = (style==="cine") ? 0.76 : 0.86;
+      vOut.connect(dry).connect(vBus);
+
+      if(style==="cine" || style==="electro" || style==="pop"){
+        const conv = offline.createConvolver();
+        conv.buffer = makeImpulseResponse(offline, style==="cine" ? 2.0 : 1.1, style==="cine" ? 2.6 : 2.0);
+        const wet = offline.createGain();
+        wet.gain.value = (style==="cine") ? 0.22 : (style==="pop" ? 0.12 : 0.14);
+        vOut.connect(conv).connect(wet).connect(vBus);
+      }
+      if(style==="electro"){
+        const delay = offline.createDelay(0.6); delay.delayTime.value = 0.18;
+        const fb = offline.createGain(); fb.gain.value = 0.18;
+        const dg = offline.createGain(); dg.gain.value = 0.14;
+        vOut.connect(delay).connect(dg).connect(vBus);
+        delay.connect(fb).connect(delay);
+      }
+
+      // Limiter-ish
+      const lim = offline.createDynamicsCompressor();
+      lim.threshold.value = -8; lim.knee.value = 0; lim.ratio.value = 20;
+      lim.attack.value = 0.003; lim.release.value = 0.08;
+
+      musicGain.connect(lim);
+      vBus.connect(lim);
+      lim.connect(offline.destination);
+
+      // Ducking automation
+      const duckAmount = (style==="cine") ? 0.55 : 0.70;
+      const baseMusicLevel = 0.30;
+      const attack = 0.02, release = 0.10;
+      let prev = 0.0;
+      for(let i=0;i<env.length;i++){
+        const t = i*envStep;
+        if(t > targetDuration) break;
+        const x = env[i];
+        const alpha = x > prev ? (envStep/attack) : (envStep/release);
+        prev = prev + clamp(alpha,0,1) * (x - prev);
+        const g = baseMusicLevel * (1 - duckAmount * prev);
+        musicGain.gain.setValueAtTime(clamp(g, 0.04, baseMusicLevel), t);
+      }
+
+      // Place voice
+      const intro = 0.55;
+      const offsetSec = vStart / sr;
+      const durSec = (vEnd - vStart) / sr;
+      vSrc.start(intro, offsetSec, durSec);
+      vSrc.stop(Math.min(targetDuration, intro + durSec + 0.1));
+
+      const rendered = await offline.startRendering();
+      remixBlob = encodeWAV(rendered);
+      remixMeta = {style, duration: targetDuration, voiceMode, createdAt: Date.now(), sampleRate: rendered.sampleRate};
+
+      if(remixUrl){ try{URL.revokeObjectURL(remixUrl);}catch{} }
+      remixUrl = URL.createObjectURL(remixBlob);
+
+      $("#btnPreviewRemix").disabled = false;
+      $("#btnSaveRemix").disabled = false;
+      $("#remixInfo").textContent = `Remix prêt ✅ (${targetDuration}s, style ${style}).`;
+    }catch(err){
+      console.error(err);
+      alert("Auto-Remix a échoué sur ce navigateur. Essaie Chrome/Android, ou une autre source audio.");
+      $("#remixInfo").textContent = "Erreur Remix.";
+    }finally{
+      $("#btnAutoRemix").disabled = false;
+    }
+  }
+
+  function previewRemix(){
+    if(!remixUrl) return;
+    new Audio(remixUrl).play().catch(()=>alert("Lecture bloquée. Clique “Activer l’audio”."));
+  }
+  async function saveRemix(){
+    if(!remixBlob) return;
+    const name = prompt("Nom de la sonnerie :", "Ma sonnerie remix");
+    if(!name) return;
+    await DB.putRingtone({id: uid(), name: name.trim().slice(0,60), createdAt: Date.now(), blob: remixBlob, meta: remixMeta});
+    remixBlob = null;
+    if(remixUrl){ try{URL.revokeObjectURL(remixUrl);}catch{} }
+    remixUrl = null; remixMeta = null;
+    $("#btnPreviewRemix").disabled = true;
+    $("#btnSaveRemix").disabled = true;
+    $("#remixInfo").textContent = "Sonnerie sauvegardée ✅";
+    await refreshRingtones();
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  function renderRingtoneList(){
+    const box = $("#ringList");
+    box.innerHTML = "";
+    if(ringtoneCache.length === 0){
+      box.innerHTML = `<div class="help">Aucune sonnerie sauvegardée. Enregistre ta voix et lance Auto-Remix.</div>`;
+      return;
+    }
+    ringtoneCache.forEach(r=>{
+      const card = document.createElement("div");
+      card.className = "card";
+      const dt = new Date(r.createdAt || Date.now());
+      const when = dt.toLocaleString();
+      card.innerHTML = `
+        <div class="top">
+          <div>
+            <div style="font-weight:900">${escapeHtml(r.name)}</div>
+            <div class="muted small">Créée : ${when} • ${r.meta?.style ? "Style: "+r.meta.style : ""}</div>
+          </div>
+          <span class="badge">Sonnerie</span>
+        </div>
+        <div class="row">
+          <button data-action="play" data-id="${r.id}">▶ Jouer</button>
+          <button data-action="use" data-id="${r.id}" class="good">Utiliser</button>
+          <button data-action="del" data-id="${r.id}" class="bad">Supprimer</button>
+        </div>`;
+      box.appendChild(card);
+    });
+  }
+
+  async function seedDefaultRingtone(){
+    await unlockAudioIfNeeded();
+    const dur = 2.2;
+    const offline = new OfflineAudioContext(2, Math.floor(44100*dur), 44100);
+    const g = offline.createGain(); g.gain.value = 0.7;
+    g.connect(offline.destination);
+    const notes = [880, 990, 1175, 990, 880];
+    for(let i=0;i<notes.length;i++){
+      const t = i*0.38;
+      const o = offline.createOscillator(); o.type="sine";
+      const eg = offline.createGain();
+      eg.gain.setValueAtTime(0.0001, t);
+      eg.gain.linearRampToValueAtTime(0.35, t+0.02);
+      eg.gain.exponentialRampToValueAtTime(0.0001, t+0.30);
+      o.frequency.setValueAtTime(notes[i], t);
+      o.connect(eg).connect(g);
+      o.start(t); o.stop(t+0.32);
+    }
+    const rendered = await offline.startRendering();
+    const blob = encodeWAV(rendered);
+    await DB.putRingtone({id: uid(), name:"Sonnerie par défaut", createdAt:Date.now(), blob, meta:{style:"default", duration:dur}});
+    await refreshRingtones();
+    alert("Sonnerie par défaut ajoutée ✅");
+  }
+
+  // Wiring
+  $("#btnUnlock").addEventListener("click", unlockAudio);
+  $("#btnUnlockModal").addEventListener("click", unlockAudio);
+  $("#btnUnlockLater").addEventListener("click", ()=>{
+    $("#unlockOverlay").classList.remove("show");
+    $("#unlockOverlay").setAttribute("aria-hidden","true");
+  });
+  $("#btnNotif").addEventListener("click", requestNotifications);
+
+  $$("#repeatDays .switch").forEach(el=>el.addEventListener("click", ()=>el.classList.toggle("on")));
+
+  $("#btnAddAlarm").addEventListener("click", ()=>{
+    const time = $("#alarmTime").value;
+    if(!time){ alert("Choisis une heure."); return; }
+    const label = $("#alarmLabel").value || "";
+    const days = $$("#repeatDays .switch.on").map(x=>parseInt(x.dataset.day,10));
+    const ringtoneId = $("#alarmRingtone").value || "beep";
+    const snoozeMin = parseInt($("#alarmSnooze").value,10) || 5;
+    alarms.push({id: uid(), time, label, days, ringtoneId, active:true, snoozeMin});
+    saveAlarms(); renderAlarms();
+    $("#alarmHint").textContent = "Alarme ajoutée ✅";
+    setTimeout(()=>$("#alarmHint").textContent="", 1500);
+  });
+  $("#btnTestAlarm").addEventListener("click", async ()=>playRingtoneById($("#alarmRingtone").value || "beep", {loop:false, gain:1.0}));
+  $("#btnClearAlarms").addEventListener("click", ()=>{
+    if(!confirm("Supprimer toutes les alarmes ?")) return;
+    alarms = []; saveAlarms(); renderAlarms();
+  });
+  $("#alarmsList").addEventListener("click", async (e)=>{
+    const btn = e.target.closest("button, .switch");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const al = alarms.find(x=>x.id===id);
+    const action = btn.dataset.action;
+    if(action==="toggle"){ al.active = !al.active; saveAlarms(); renderAlarms(); return; }
+    if(action==="del"){ alarms = alarms.filter(x=>x.id!==id); saveAlarms(); renderAlarms(); return; }
+    if(action==="test"){ await playRingtoneById(al.ringtoneId || "beep", {loop:false, gain:1.0}); return; }
+    if(action==="edit"){
+      const newLabel = prompt("Nom :", al.label || "");
+      if(newLabel !== null) al.label = newLabel;
+      const newTime = prompt("Heure (HH:MM) :", al.time);
+      if(newTime && /^\d\d:\d\d$/.test(newTime)) al.time = newTime;
+      saveAlarms(); renderAlarms();
+    }
+  });
+
+  $("#btnQuick5").addEventListener("click", ()=>{
+    $("#timerMinutes").value = String((parseInt($("#timerMinutes").value||"0",10) || 0) + 5);
+  });
+  $("#btnAddTimer").addEventListener("click", ()=>{
+    const min = parseInt($("#timerMinutes").value, 10);
+    if(!Number.isFinite(min) || min<=0){ alert("Mets une durée > 0 minutes."); return; }
+    const label = $("#timerLabel").value || "";
+    const ringtoneId = $("#timerRingtone").value || "beep";
+    const repeat = $("#timerRepeat").value || "999";
+    timers.push({id:uid(), label, totalSec:min*60, remainingSec:min*60, running:false, ringtoneId, repeat, finished:false});
+    saveTimers(); renderTimers();
+  });
+  $("#btnClearTimers").addEventListener("click", ()=>{
+    if(!confirm("Supprimer tous les minuteurs ?")) return;
+    timers = []; saveTimers(); renderTimers();
+  });
+  $("#timersList").addEventListener("click", (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    const t = timers.find(x=>x.id===id);
+    if(!t) return;
+    if(action==="start"){
+      if(t.finished){ t.finished=false; t.remainingSec = t.totalSec; }
+      t.running = !t.running;
+      saveTimers(); renderTimers(); return;
+    }
+    if(action==="reset"){ t.running=false; t.finished=false; t.remainingSec=t.totalSec; saveTimers(); renderTimers(); return; }
+    if(action==="del"){ timers = timers.filter(x=>x.id!==id); saveTimers(); renderTimers(); return; }
+  });
+
+  $("#btnSwStart").addEventListener("click", ()=>{
+    if(sw.running){
+      sw.running=false; sw.acc += performance.now() - sw.t0;
+      $("#swState").textContent="Pause"; $("#swState").className="badge warn";
+      $("#btnSwStart").textContent="Démarrer";
+    }else{
+      sw.running=true; sw.t0 = performance.now();
+      $("#swState").textContent="En cours"; $("#swState").className="badge good";
+      $("#btnSwStart").textContent="Pause";
+    }
+  });
+  $("#btnSwLap").addEventListener("click", ()=>{
+    if(!sw.running){ alert("Démarre le chrono d’abord."); return; }
+    const ms = swElapsedMs();
+    const prev = sw.laps.length ? sw.laps[sw.laps.length-1].totalMs : 0;
+    sw.laps.push({lapMs: ms - prev, totalMs: ms});
+    renderLaps();
+  });
+  $("#btnSwReset").addEventListener("click", ()=>{
+    sw = { running:false, t0:0, acc:0, laps:[] };
+    $("#swState").textContent="À l’arrêt"; $("#swState").className="badge warn";
+    $("#btnSwStart").textContent="Démarrer";
+    renderLaps();
+  });
+  $("#btnSwClear").addEventListener("click", ()=>{ sw.laps=[]; renderLaps(); });
+
+  $("#btnRecStart").addEventListener("click", startRecording);
+  $("#btnRecStop").addEventListener("click", stopRecording);
+  $("#btnRecPlay").addEventListener("click", playVoice);
+  $("#btnRecDiscard").addEventListener("click", discardVoice);
+
+  $("#btnAutoRemix").addEventListener("click", autoRemix);
+  $("#btnPreviewRemix").addEventListener("click", previewRemix);
+  $("#btnSaveRemix").addEventListener("click", saveRemix);
+  $("#btnSeedDefault").addEventListener("click", seedDefaultRingtone);
+
+  $("#ringList").addEventListener("click", async (e)=>{
+    const btn = e.target.closest("button");
+    if(!btn) return;
+    const action = btn.dataset.action;
+    const id = btn.dataset.id;
+    if(action==="play"){ await playRingtoneById(id, {loop:false, gain:1.0}); return; }
+    if(action==="use"){
+      $("#alarmRingtone").value = id;
+      $("#timerRingtone").value = id;
+      alert("Sonnerie sélectionnée ✅");
+      return;
+    }
+    if(action==="del"){
+      if(!confirm("Supprimer cette sonnerie ?")) return;
+      await DB.deleteRingtone(id);
+      await refreshRingtones();
+    }
+  });
+
+  $("#btnDismiss").addEventListener("click", ()=>{
+    stopAnyRingtone();
+    $("#alarmOverlay").classList.remove("show");
+    $("#alarmOverlay").setAttribute("aria-hidden","true");
+  });
+  $("#btnLower").addEventListener("click", ()=>{
+    if(currentRingtoneAudio instanceof Audio) currentRingtoneAudio.volume = 0.25;
+  });
+  $("#btnSnooze").addEventListener("click", ()=>{
+    stopAnyRingtone();
+    $("#alarmOverlay").classList.remove("show");
+    $("#alarmOverlay").setAttribute("aria-hidden","true");
+    const label = $("#alarmModalLabel").textContent || "Snooze";
+    const snoozeMin = parseInt($("#alarmSnooze").value,10) || 5;
+    const ringtoneId = $("#alarmRingtone").value || "beep";
+    const at = Date.now() + snoozeMin*60*1000;
+    const snoozes = LS.get("snoozes_v1", []);
+    snoozes.push({id:uid(), atTs: at, label, ringtoneId});
+    LS.set("snoozes_v1", snoozes);
+    alert("Snooze activé ✅");
+  });
+
+  // loops
+  let lastTick = performance.now();
+  setInterval(()=>{ $("#swTime").textContent = formatMs(swElapsedMs()); }, 100);
+  setInterval(()=>{ checkAlarmsTick().catch(()=>{}); }, 1000);
+  setInterval(()=>{
+    const t = performance.now();
+    const dt = (t-lastTick)/1000;
+    lastTick = t;
+    timersTick(dt);
+  }, 250);
+
+  async function init(){
+    await refreshRingtones();
+    renderAlarms();
+    renderTimers();
+    renderLaps();
+    refreshRingtoneSelects();
+    $("#remixInfo").textContent = "—";
+    try{
+      const ctx = ensureAudioContext();
+      if(ctx.state === "running"){
+        unlocked = true;
+        $("#audioStatus").textContent = "ok";
+        $("#unlockOverlay").classList.remove("show");
+        $("#unlockOverlay").setAttribute("aria-hidden","true");
+      }
+    }catch{}
+  }
+  init();
+})();
+</script>
+
+<script>
+  // PWA: service worker (cache offline)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("./service-worker.js").catch(console.warn);
+    });
+  }
+</script>
+
+</body>
+</html>
